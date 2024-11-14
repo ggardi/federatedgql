@@ -1,0 +1,36 @@
+type Query {
+    account(cust_id: String @eq): [Account!]! @all
+    # account(cust_id: String! @eq): [Account!]! @field(resolver: "App\\GraphQL\\Queries\\Account@getAccountsByCustId") 
+    accounts: [Account!]! @all
+}
+
+type Mutation {
+    createAccount(input: AccountInput! @spread): Account @field(resolver: "App\\GraphQL\\Mutations\\Account@create") 
+}
+
+input AccountInput {
+    cust_id: String!
+    acct_number: String!
+}
+
+type Account {
+    acct_id: ID!
+    cust_id: String! 
+    acct_number: String
+    # We can extend the Customer type from customer-service since it 
+    # was defined as an entity making it extendable.
+    customer: Customer
+}
+
+# Required "stub" of the Customer entity, 
+# includes how to uniquely identify a Customer 
+# extend keyword indicates that Customer 
+# is an entity that's defined in another subgraph.
+# must match exactly one @key in the Customer type on customer-service subgraph.
+
+# note lighthouse doesn't use the apollo keyword extend before the type
+# extend type Customer @extends @key(fields: "cust_id") {
+    
+type Customer @extends @key(fields: "cust_id") {
+  cust_id: ID! @external
+}

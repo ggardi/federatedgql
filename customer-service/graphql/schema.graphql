@@ -1,0 +1,37 @@
+type Query {
+    customer(email: String @eq): [Customer]! @all
+    customers: [Customer!]! @all
+}
+
+type Mutation {
+    createCustomer(input: CustomerInput! @spread): Customer @field(resolver: "App\\GraphQL\\Resolvers\\Customer@create") 
+}
+
+input CustomerInput {
+    first_name: String!
+    last_name: String!
+    email: String!
+    password: String
+}
+
+# To reference and extend a type (Customer in this case) across all graphs 
+# in a federated graph we designate the Customer type as an entity 
+# by adding a @key directive which defines the primary key cust_id 
+# entities are the core building blocks of federated graphs.
+# the Customer in this example can now be referenced and extended in our 
+# account-service subgraph.
+type Customer @key(fields: "cust_id") {
+    cust_id: ID! 
+    first_name: String
+    last_name: String
+    email: String
+    is_enabled: Boolean
+    user: User!
+}
+
+type User { 
+    id: ID!
+    email: String
+    username: String 
+    enabled: Boolean
+}
