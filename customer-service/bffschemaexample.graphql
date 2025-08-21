@@ -1,0 +1,100 @@
+type Query {
+  getBranding(tld: String!): BrandingResult
+  getLoanOfficers(state: String): [LoanOfficer]
+  getBranches(state: String): [Branch]
+  getGeoIpInfo: GeoIpInfo
+}
+
+type Mutation {
+  verifyRecaptcha(token: String!): RecaptchaResult
+  createCustomer(input: CustomerInput!): CustomerResponse
+  submitApplication(input: ApplicationInput!): ApplicationResponse
+}
+
+# Branding with fallback awareness and feature flags
+type BrandingResult {
+  branding: Branding
+  fallbackUsed: Boolean
+}
+
+type Branding {
+  logoUrl: String
+  headerColor: String
+  supportText: String
+  supportLink: String
+  defaultLoanOfficer: LoanOfficer
+  featureFlags: [String]
+}
+
+# Loan officer and branch models
+type LoanOfficer {
+  id: ID!
+  name: String
+  title: String
+  email: String
+  phone: String
+  mobile: String
+  profileImageUrl: String
+  branch: Branch
+  state: String
+}
+
+type Branch {
+  id: ID!
+  name: String
+  address: String
+  phone: String
+  state: String
+}
+
+# GeoIP for location-based logic
+type GeoIpInfo {
+  countryCode: String
+  region: String
+  city: String
+}
+
+# reCAPTCHA verification
+type RecaptchaResult {
+  success: Boolean!
+  errors: [ErrorDetail]
+}
+
+# Customer creation input and response
+input CustomerInput {
+  firstName: String!
+  lastName: String!
+  email: String!
+  password: String!
+  loanOfficerId: ID
+  branchId: ID
+}
+
+type CustomerResponse {
+  status: String!
+  message: String
+  trackingId: String
+  errors: [ErrorDetail]
+}
+
+# Application submission
+input ApplicationInput {
+  customer: CustomerInput!
+  loanOfficerId: ID
+  branchId: ID
+  tld: String!
+}
+
+type ApplicationResponse {
+  success: Boolean!
+  redirectUrl: String
+  trackingId: String
+  errors: [ErrorDetail]
+}
+
+# Rich error structure
+type ErrorDetail {
+  code: String
+  message: String
+  field: String
+}
